@@ -24,8 +24,12 @@ describe ::NonPrintableSanitization do
 
   context "when called with a binary body POST request" do
     let(:request) { Rack::MockRequest.new(start_app) }
+    let(:path) { "/some/path" }
+
     before(:each) do
-      request.post("/some/path", :input => post_data, "CONTENT_TYPE" => content_type)
+      ::NonPrintableSanitization.skip_paths << /skippable/i
+      request.post(path, :input => post_data, "CONTENT_TYPE" => content_type)
+      ::NonPrintableSanitization.skip_paths.clear
     end
 
     context "with text/plain content" do
@@ -43,6 +47,18 @@ describe ::NonPrintableSanitization do
 
       it "sanitizes the non-printable \0" do
         expect(app.request_body).to eq("derp%20derp%20derp")
+      end
+    end
+
+    context "when path is skipped" do
+      context "with text/plain content" do
+        let(:path) { "/skippable" }
+        let(:post_data) { "derp derp derp\0" }
+        let(:content_type) { "text/plain" }
+
+        it "skips sanitize of the non-printable \0" do
+          expect(app.request_body).to eq(post_data)
+        end
       end
     end
 
