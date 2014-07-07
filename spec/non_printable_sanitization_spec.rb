@@ -37,6 +37,15 @@ describe ::NonPrintableSanitization do
       end
     end
 
+    context "with URL encoded content" do
+      let(:post_data) { "derp%20derp%20derp%00" }
+      let(:content_type) { "application/x-www-form-urlencoded" }
+
+      it "sanitizes the non-printable \0" do
+        expect(app.request_body).to eq("derp%20derp%20derp")
+      end
+    end
+
     context "with multipart/form-data content" do
       let(:post_data) { "derp derp derp\0" }
       let(:content_type) { "multipart/form-data" }
