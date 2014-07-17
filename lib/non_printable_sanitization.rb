@@ -32,19 +32,12 @@ class NonPrintableSanitization
 
   private
 
-  def is_url_encoded?(env)
-    content_type = env["CONTENT_TYPE"] || "none"
-    content_type.downcase.include?("urlencoded")
-  end
-
   def remove_non_printable_characters!(env)
     input = env["rack.input"].read
     
     if input && input.size > 0
-      url_encoded = is_url_encoded?(env)
-      input = ::URI.decode(input) if url_encoded
-      input.gsub!(/[[:cntrl:]]/, "")
-      input = ::URI.encode(input) if url_encoded
+      input.gsub!("\x00", "")
+      input.gsub!("%00", "")
       env["rack.input"] = StringIO.new(input)
     end
   ensure
