@@ -50,6 +50,15 @@ describe ::NonPrintableSanitization do
       end
     end
 
+    context "with URL encoded printable content" do
+      let(:post_data) { "derp+derp+derp" }
+      let(:content_type) { "application/x-www-form-urlencoded" }
+
+      it "leaves the printable" do
+        expect(app.request_body).to eq("derp+derp+derp")
+      end
+    end
+
     context "when path is skipped" do
       context "with text/plain content" do
         let(:path) { "/skippable" }

@@ -43,7 +43,7 @@ class NonPrintableSanitization
     if input && input.size > 0
       url_encoded = is_url_encoded?(env)
       input = ::URI.decode(input) if url_encoded
-      input.gsub!(/[^[:print:]]/, "")
+      input.gsub!(/[[:cntrl:]]/, "")
       input = ::URI.encode(input) if url_encoded
       env["rack.input"] = StringIO.new(input)
     end
